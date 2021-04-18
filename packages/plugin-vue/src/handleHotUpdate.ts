@@ -47,6 +47,10 @@ export async function handleHotUpdate({
     !isEqualBlock(descriptor.scriptSetup, prevDescriptor.scriptSetup)
   ) {
     affectedModules.add(mainModule)
+    const scriptModule = modules.find((m) => /type=script/.test(m.url))
+    if (scriptModule) {
+      affectedModules.add(scriptModule)
+    }
   }
 
   if (!isEqualBlock(descriptor.template, prevDescriptor.template)) {

@@ -18,7 +18,7 @@ import {
 } from '@vue/compiler-sfc'
 import { parseVueRequest } from './utils/query'
 import { getDescriptor } from './utils/descriptorCache'
-import { getResolvedScript } from './script'
+import { getResolvedScript, resolveScript } from './script'
 import { transformMain } from './main'
 import { handleHotUpdate } from './handleHotUpdate'
 import { transformTemplateAsModule } from './template'
@@ -120,6 +120,14 @@ export default function vuePlugin(rawOptions: Options = {}): Plugin {
         if (query.type === 'script') {
           // handle <scrip> + <script setup> merge via compileScript()
           block = getResolvedScript(descriptor, ssr)
+          if (!block) {
+            const lang = descriptor.script?.attrs.lang
+            if (lang) {
+              if (['js', 'ts'].indexOf(lang as string) === -1) {
+                block = resolveScript(descriptor, options, ssr)
+              }
+            }
+          }
         } else if (query.type === 'template') {
           block = descriptor.template!
         } else if (query.type === 'style') {
